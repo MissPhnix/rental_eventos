@@ -1,0 +1,108 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:aluno@localhost/rental_db"
+
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+
+db.init_app(app)
+
+with app.app_context():
+    db.reflect()
+
+class Usuario(db.Model):
+    __table__ = db.metadata.tables["usuario"]
+
+class Equipamento(db.Model):
+    __table__ = db.metadata.tables["equipamento"]
+
+class Movimentacao(db.Model):
+    __table__ = db.metadata.tables["movimentacao"]
+
+# métodos
+@app.route("/login", methods=["GET"])
+def login(email: str, senha: str):
+    user = db.get(Usuario, email, senha)
+    if user:
+        return "Login efetuado com sucesso!"
+    return "Erro: E-mail ou Senha incorretos. Tente novamente ou crie uma conta."
+
+@app.route("/equipamentos")
+def listarEquipamentos():
+    conexao = SessionLocal()
+    equipamentos = conexao.query(Equipamento).all()
+    conexao.close()
+    return {"equipamento": [ModelEquipamento.model_validate(e).dict() for e in equipamentos]}
+
+@app.get("/movimentacao")
+def listarMovimentacaos():
+    conexao = SessionLocal()
+    movimentacaos = conexao.query(Movimentacao).all()
+    conexao.close()
+    return {"movimentacaos": [ModelMovimentacao.model_validate(m).dict() for m in movimentacaos]}
+
+@app.route("/usuario")
+def listarUsuarios():
+    usuarios = db.session.execute(db.select(Usuario).order_by(Usuario.nome)).scalars()
+    return render_template("user/lists.html", users=usuarios)
+
+@app.route("/usuario", methods=["GET", "POST"])
+def criarUsuario():
+    if request.method == "POST":
+        usuario = Usuario(
+            nome=request.form["nome"],
+            data_nascimento=request.form["data_nascimento"],
+            
+        )
+
+@app.post("/equipamento")
+def criarEquipamento(e: ModelEquipamento):
+    conexao = SessionLocal()
+    novoEquipamento = Equipamento(**e.dict())
+    conexao.add(novoEquipamento)
+    conexao.commit()
+    conexao.refresh(novoEquipamento)
+    conexao.close()
+    return {"mensagem": "Equipamento criado com sucesso!", "equipamento": ModelEquipamento.model_validate(novoEquipamento).dict()}
+
+@app.post("/movimentacao")
+def criarMovimentacao(m: ModelMovimentacao):
+    conexao = SessionLocal()
+    novoMovimentacao = Movimentacao(**m.dict())
+    conexao.add(novoMovimentacao)
+    conexao.commit()
+    conexao.refresh(novoMovimentacao)
+    conexao.close()
+    return {"mensagem": "Movimentacao criado com sucesso!", "movimentacao": ModelMovimentacao.model_validate(novoMovimentacao).dict()}
+
+@app.get("/usuario/id")
+def listarPorID(id: int):
+    conexao = SessionLocal()
+    u = conexao.query(Usuario).filter(Usuario.id == id).first()
+    conexao.close()
+    if c:
+        return {"usuarios": ModelUsuario.model_validate(u).dict()}
+    return {"mensagem": "Usuario não encontrado"}
+
+@app.get("/equipamento/id")
+def listarPorID(id: int):
+    conexao = SessionLocal()
+    e = conexao.query(Equipamento).filter(Equipamento.id == id).first()
+    conexao.close()
+    if e:
+        return {"equipamentos": ModelEquipamento.model_validate(e).dict()}
+    return {"mensagem": "Equipamento não encontrado"}
+
+@app.get("/movimentacao/id")
+def listarPorID(id: int):
+    conexao = SessionLocal()
+    m = conexao.query(Movimentacao).filter(Movimentacao.id == id).first()
+    conexao.close()
+    if m:
+        return {"movimentacaos": ModelMovimentacao.model_validate(m).dict()}
+    return {"mensagem": "Movimentacao não encontrada"}
