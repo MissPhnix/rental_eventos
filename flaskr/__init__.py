@@ -43,12 +43,12 @@ def create_app(test_config=None):
                 try:
                     db.execute(
                         "insert into usuario (nome, data_nascimento, email, senha, cpf) values (?, ?)",
-                    (nome, data_nascimento, email, senha, cpf),)
+                    (nome, data_nascimento, email, generate_password_hash(senha), cpf),)
                     db.commit()
                 except db.IntegrityError:
                     error: f"Usuario {nome} já registrado." 
     
-    @app.route('/cadastro')
+    @app.route('/cadastroEquipamento', methods=('GET','POST'))
     def novoEquipamento():
             if request.method == 'POST':
                 marca = request.form['marca']
@@ -68,10 +68,53 @@ def create_app(test_config=None):
                 if error is None:
                     try:
                         db.execute(
-                            "insert into usuario (nome, data_nascimento, email, senha, cpf) values (?, ?)",
+                            "insert into usuario (nome, data_nascimento, email, senha, cpf) values (?, ?, ?, ?, ?)",
                         (nome, data_nascimento, email, senha, cpf),)
                         db.commit()
                     except db.IntegrityError:
                         error: f"Usuario {nome} já registrado." 
+
+    @app.route('/cadastroMovimentacao', methods=('GET','POST'))
+    def novaMovimentacao():
+        if request.method == 'POST':
+            equipamento_id = request.form['equipamento_id']
+            usuario_id = request.form['usuario_id']
+            data_movimento = request.form['data_movimento']
+            tipo = request.form['tipo']
+            error = None
+
+            if not equipamento_id or not usuario_id or not data_movimento or not tipo:
+                error = 'Todos os campos devem ser preenchidos.'
+            
+            if error is None:
+                try db.execute(
+                    "insert into movimentacao (equipamento_id, usuario_id, data_movimento, tipo) values (?, ?, ?, ?)"
+                )
+
+    @app.route('/login', methods=('GET', 'POST'))
+    def login():
+        if request.method == 'POST':
+            email = request.form['email']
+            senha = request.form['senha']
+            db = get_db()
+            error = None
+            usuario = db.execute(
+                'SELECT * FROM usuario WHERE email = ?', (email,)
+            ).fetchone()
+
+            if usuario is None:
+                error = 'Incorrect email.'
+            elif not check_password_hash(usuario['senha'], senha):
+                error = 'Incorrect senha.'
+
+            if error is None:
+                session.clear()
+                session['usuario_id'] = usuario['id']
+                return redirect(url_for('index'))
+
+            flash(error)
+
+        return render_template('auth/login.html')
+    
 
     return app
