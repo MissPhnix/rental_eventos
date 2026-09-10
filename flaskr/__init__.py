@@ -115,6 +115,45 @@ def create_app(test_config=None):
             flash(error)
 
         return render_template('auth/login.html')
+
+    @app.route('/listarUsuarios', methods=['GET'])
+    def listarUsuarios():
+        db = get_db()
+        error = None
+        u = db.execute(
+            'SELECT * FROM usuario'
+        ).fetchall()
+
+        if error is None:
+            return u
+
+        flash(error)
     
+    @app.route('/listarEquipamentos', methods=['GET'])
+    def listarEquipamentos():
+        db = get_db()
+        error = None
+        e = db.execute(
+            'SELECT * FROM equipamentos'
+        ).fetchall()
+
+        if error is None:
+            return e
+
+        flash(error)
+
+    @app.route('/listarMovimentacao', methods=['GET'])
+    def listarMovimento():
+        db = get_db()
+        error = None
+        m = db.execute(
+            'SELECT * FROM usuario'
+        ).fetchall()
+
+        if error is None:
+            return m
+
+        flash(error)
+        
 
     return app
