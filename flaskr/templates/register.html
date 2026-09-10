@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Cadastro{% endblock %}</h1>
+{% endblock %}
+
+<h2>Usuario</h2>
+{% block content %}
+  <form method="post" id="cadastroUsuario">
+    <label for="nome">Nome Completo</label>
+    <input name="nome" id="nome" required>
+    <label for="data_nascimento">Data de Nascimento</label>
+    <input type="date" name="data_nascimento" id="data_nascimento" required>
+    <label for="email">E-mail</label>
+    <input type="email" name="email" id="email" required>
+    <label for="senha">Senha</label>
+    <input type="password" name="senha" id="senha" required>
+    <label for="cpf">CPF</label>
+    <input name="cpf" id="cpf" required>
+    <input type="submit" value="Cadastrar">
+  </form>
+{% endblock %}
+
+<h2>Equipamento</h2>
+{% block content %}
+  <form method="post" id="cadastroEquipamento">
+    <label for="marca">Marca</label>
+    <input name="marca" id="marca" required>
+    <label for="modelo">Modelo</label>
+    <input name="modelo" id="modelo" required>
+    <label for="categoria">Categoria</label>
+    <input id="categoria" nome="categoria" required>
+    <label for="potencia">Potência</label>
+    <input nome="potencia" id="potencia">
+    <label for="material">Material</label>
+    <input nome="material" id="material" required>
+    <label for="peso">Peso</label>
+    <input type="number" name="peso" id="peso" required>
+    <label for="dimensoes">Dimensões</label>
+    <input nome="dimensoes" id="dimensoes" required>
+    <label for="cor">Cor</label>
+    <input nome="cor" id="cor" required>
+    <label for="quantidade">Quantidade</label>
+    <input type="number" name="quantidade" id="quantidade" required>
+    <input type="submit" value="Register">
+  </form>
+{% endblock %}
+
+<h2>Movimento</h2>
+{% block content %}
+  <form method="post" id="cadastroMovimento">
+    <label for="equipamento_id">ID do Equipamento</label>
+    <input type="number" name="equipamento_id" id="equipamento_id" required>
+    <label for="usuario_id">ID do Usuário</label>
+    <input type="number" name="usuario_id" id="usuario_id" required>
+    <label for="data_mov">Data do Movimento</label>
+    <input type="date" name="data_mov" id="data_mov" required>
+    <label for="tipo">Tipo de Movimento (Entrada/Saída)</label>
+    <input name="tipo" id="tipo" required>
+    <input type="submit" value="Register">
+  </form>
+{% endblock %}
